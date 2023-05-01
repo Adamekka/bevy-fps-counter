@@ -77,27 +77,27 @@ fn update(
     state_resources: Option<ResMut<FpsCounter>>,
     mut text_query: Query<&mut Text, With<FpsCounterText>>,
 ) {
-    if let Some(mut state) = state_resources {
-        if state.update_now || state.timer.tick(time.delta()).just_finished() {
-            if state.timer.paused() {
-                for mut text in text_query.iter_mut() {
-                    let value: &mut String = &mut text.sections[0].value;
-                    value.clear();
-                }
+    let Some(mut state) = state_resources else { return };
+    if !(state.update_now || state.timer.tick(time.delta()).just_finished()) {
+        return;
+    }
+    if state.timer.paused() {
+        for mut text in text_query.iter_mut() {
+            let value: &mut String = &mut text.sections[0].value;
+            value.clear();
+        }
+    } else {
+        let fps_dialog: Option<f64> = extract_fps(&diagnostics);
+
+        for mut text in text_query.iter_mut() {
+            let value: &mut String = &mut text.sections[0].value;
+            value.clear();
+
+            if let Some(fps) = fps_dialog {
+                write!(value, "{}{:.0}", STRING_FORMAT, fps).expect("Failed to write");
             } else {
-                let fps_dialog: Option<f64> = extract_fps(&diagnostics);
-
-                for mut text in text_query.iter_mut() {
-                    let value: &mut String = &mut text.sections[0].value;
-                    value.clear();
-
-                    if let Some(fps) = fps_dialog {
-                        write!(value, "{}{:.0}", STRING_FORMAT, fps).expect("Failed to write");
-                    } else {
-                        value.clear();
-                        write!(value, "{}", STRING_MISSING).expect("Failed to write");
-                    }
-                }
+                value.clear();
+                write!(value, "{}", STRING_MISSING).expect("Failed to write");
             }
         }
     }
