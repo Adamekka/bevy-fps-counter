@@ -2,7 +2,7 @@
 
 use crate::config::{STRING_FORMAT, UPDATE_INTERVAL};
 use bevy::{
-    diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin},
+    diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     prelude::*,
 };
 use config::{STRING_INITIAL, STRING_MISSING};
@@ -26,9 +26,9 @@ pub struct FpsCounterPlugin;
 
 impl Plugin for FpsCounterPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(FrameTimeDiagnosticsPlugin::default())
-            .add_startup_system(spawn_text)
-            .add_system(update)
+        app.add_plugins(FrameTimeDiagnosticsPlugin)
+            .add_systems(Startup, spawn_text)
+            .add_systems(Update, update)
             .init_resource::<FpsCounter>();
     }
 }
@@ -73,11 +73,13 @@ pub struct FpsCounterText;
 
 fn update(
     time: Res<Time>,
-    diagnostics: Res<Diagnostics>,
+    diagnostics: Res<DiagnosticsStore>,
     state_resources: Option<ResMut<FpsCounter>>,
     mut text_query: Query<&mut Text, With<FpsCounterText>>,
 ) {
-    let Some(mut state) = state_resources else { return };
+    let Some(mut state) = state_resources else {
+        return;
+    };
     if !(state.update_now || state.timer.tick(time.delta()).just_finished()) {
         return;
     }
@@ -103,7 +105,7 @@ fn update(
     }
 }
 
-fn extract_fps(diagnostics: &Res<Diagnostics>) -> Option<f64> {
+fn extract_fps(diagnostics: &Res<DiagnosticsStore>) -> Option<f64> {
     diagnostics
         .get(bevy::diagnostic::FrameTimeDiagnosticsPlugin::FPS)
         .and_then(|fps| fps.average())

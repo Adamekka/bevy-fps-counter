@@ -5,9 +5,9 @@ use bevy_fps_counter::{FpsCounter, FpsCounterPlugin};
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugin(FpsCounterPlugin)
-        .add_startup_system(setup)
-        .add_system(mouse_handler)
+        .add_plugins(FpsCounterPlugin)
+        .add_systems(Startup, setup)
+        .add_systems(Update, mouse_handler)
         .run();
 }
 
