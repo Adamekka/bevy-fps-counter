@@ -111,18 +111,16 @@ fn extract_fps(diagnostics: &Res<DiagnosticsStore>) -> Option<f64> {
         .and_then(|fps| fps.average())
 }
 
-fn spawn_text(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let font: Handle<Font> = asset_server.load("fonts/UbuntuMonoNerdFontCompleteMono.ttf");
-
+fn spawn_text(mut commands: Commands) {
     commands
         .spawn(TextBundle {
             text: Text {
                 sections: vec![TextSection {
                     value: STRING_INITIAL.to_string(),
                     style: TextStyle {
-                        font,
                         font_size: config::FONT_SIZE,
                         color: config::FONT_COLOR,
+                        ..default()
                     },
                 }],
                 ..default()

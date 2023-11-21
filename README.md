@@ -23,6 +23,4 @@ bevy-fps-counter = "*"
 
 ### Basic
 
-You can see comparison with MangoHud on the right
-
 ![FPS Counter example image](docs/example.png)
