@@ -15,7 +15,10 @@ fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
-fn mouse_handler(mouse_button_input: Res<Input<MouseButton>>, mut diags_state: ResMut<FpsCounter>) {
+fn mouse_handler(
+    mouse_button_input: Res<ButtonInput<MouseButton>>,
+    mut diags_state: ResMut<FpsCounter>,
+) {
     if mouse_button_input.pressed(MouseButton::Left) {
         if diags_state.is_enabled() {
             diags_state.disable();

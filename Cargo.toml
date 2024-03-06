@@ -5,9 +5,9 @@ description = "A simple FPS counter plugin for Bevy."
 repository = "https://github.com/Adamekka/bevy-fps-counter"
 homepage = "https://github.com/Adamekka/bevy-fps-counter"
 license = "MIT"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 readme = "README.md"
 
 [dependencies]
-bevy = "0.12"
+bevy = "0.13"

@@ -107,7 +107,7 @@ fn update(
 
 fn extract_fps(diagnostics: &Res<DiagnosticsStore>) -> Option<f64> {
     diagnostics
-        .get(bevy::diagnostic::FrameTimeDiagnosticsPlugin::FPS)
+        .get(&bevy::diagnostic::FrameTimeDiagnosticsPlugin::FPS)
         .and_then(|fps| fps.average())
 }
 
