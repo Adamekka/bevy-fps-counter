@@ -10,4 +10,4 @@ edition = "2021"
 readme = "README.md"
 
 [dependencies]
-bevy = "0.13"
+bevy = "0.14"
