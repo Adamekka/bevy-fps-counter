@@ -13,7 +13,6 @@ readme = "README.md"
 bevy = "0.15"
 
 
-
 [[example]]
 name = "basic"
 path = "examples/basic.rs"
