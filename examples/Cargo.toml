@@ -1,6 +1,0 @@
-[dependencies]
-bevy-fps-counter = { path = "../" }
-
-[[example]]
-name = "basic"
-path = "basic.rs"
