@@ -6,7 +6,6 @@ use bevy::{
     prelude::*,
 };
 use config::{STRING_INITIAL, STRING_MISSING};
-use std::fmt::Write;
 
 mod config {
     use bevy::prelude::*;
@@ -75,7 +74,8 @@ fn update(
     time: Res<Time>,
     diagnostics: Res<DiagnosticsStore>,
     state_resources: Option<ResMut<FpsCounter>>,
-    mut text_query: Query<&mut Text, With<FpsCounterText>>,
+    mut query: Query<Entity, With<FpsCounterText>>,
+    mut writer: TextUiWriter,
 ) {
     let Some(mut state) = state_resources else {
         return;
@@ -84,22 +84,17 @@ fn update(
         return;
     }
     if state.timer.paused() {
-        for mut text in text_query.iter_mut() {
-            let value: &mut String = &mut text.sections[0].value;
-            value.clear();
+        for entity in query.iter_mut() {
+            writer.text(entity, 0).clear();
         }
     } else {
         let fps_dialog: Option<f64> = extract_fps(&diagnostics);
 
-        for mut text in text_query.iter_mut() {
-            let value: &mut String = &mut text.sections[0].value;
-            value.clear();
-
+        for entity in query.iter_mut() {
             if let Some(fps) = fps_dialog {
-                write!(value, "{}{:.0}", STRING_FORMAT, fps).expect("Failed to write");
+                *writer.text(entity, 0) = format!("{}{:.0}", STRING_FORMAT, fps);
             } else {
-                value.clear();
-                write!(value, "{}", STRING_MISSING).expect("Failed to write");
+                *writer.text(entity, 0) = STRING_MISSING.to_string();
             }
         }
     }
@@ -107,25 +102,19 @@ fn update(
 
 fn extract_fps(diagnostics: &Res<DiagnosticsStore>) -> Option<f64> {
     diagnostics
-        .get(&bevy::diagnostic::FrameTimeDiagnosticsPlugin::FPS)
+        .get(&FrameTimeDiagnosticsPlugin::FPS)
         .and_then(|fps| fps.average())
 }
 
 fn spawn_text(mut commands: Commands) {
     commands
-        .spawn(TextBundle {
-            text: Text {
-                sections: vec![TextSection {
-                    value: STRING_INITIAL.to_string(),
-                    style: TextStyle {
-                        font_size: config::FONT_SIZE,
-                        color: config::FONT_COLOR,
-                        ..default()
-                    },
-                }],
-                ..default()
+        .spawn((
+            Text::new(STRING_INITIAL),
+            TextFont {
+                font_size: config::FONT_SIZE,
+                ..Default::default()
             },
-            ..default()
-        })
+            TextColor(config::FONT_COLOR),
+        ))
         .insert(FpsCounterText);
 }
