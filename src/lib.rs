@@ -62,7 +62,7 @@ impl FpsCounter {
 
     /// Check if FPS counter is enabled
     pub fn is_enabled(&self) -> bool {
-        !self.timer.paused()
+        !self.timer.is_paused()
     }
 }
 
@@ -83,7 +83,7 @@ fn update(
     if !(state.update_now || state.timer.tick(time.delta()).just_finished()) {
         return;
     }
-    if state.timer.paused() {
+    if state.timer.is_paused() {
         for entity in query.iter_mut() {
             writer.text(entity, 0).clear();
         }
