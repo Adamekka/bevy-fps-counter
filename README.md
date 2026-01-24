@@ -32,6 +32,7 @@ If a new version of Bevy is released and this crate is not updated, please open 
 
 | `bevy-fps-counter` | `bevy` |
 | ------------------ | ------ |
+| `0.9.0`            | `0.18` |
 | `0.8.0`            | `0.17` |
 | `0.7.0`            | `0.16` |
 | `0.6.0`            | `0.15` |
