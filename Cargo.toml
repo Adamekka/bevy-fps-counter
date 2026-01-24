@@ -6,7 +6,7 @@ repository = "https://github.com/Adamekka/bevy-fps-counter"
 homepage = "https://github.com/Adamekka/bevy-fps-counter"
 license = "MIT"
 version = "0.8.0"
-edition = "2021"
+edition = "2024"
 readme = "README.md"
 
 [dependencies]
