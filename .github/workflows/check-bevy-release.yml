@@ -1,0 +1,95 @@
+name: Check Bevy release
+
+on:
+  schedule:
+    # Weekly failures are the notification signal that the dependency should be reviewed.
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-bevy-release:
+    name: Check Bevy release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Compare declared Bevy version with crates.io
+        shell: bash
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+          import re
+          import sys
+          import tomllib
+          import urllib.request
+
+          crate_name = "bevy"
+          manifest_path = "Cargo.toml"
+          crates_io_url = f"https://crates.io/api/v1/crates/{crate_name}"
+
+          with open(manifest_path, "rb") as manifest_file:
+              manifest = tomllib.load(manifest_file)
+
+          dependency = manifest.get("dependencies", {}).get(crate_name)
+          if isinstance(dependency, str):
+              declared_version = dependency
+          elif isinstance(dependency, dict):
+              declared_version = dependency.get("version")
+          else:
+              declared_version = None
+
+          if not declared_version:
+              print(f"::error title=Missing Bevy version::Could not determine the {crate_name} dependency version in {manifest_path}.")
+              sys.exit(1)
+
+          def parse_release_version(raw_version):
+              match = re.search(r"(\d+)(?:\.(\d+))?(?:\.(\d+))?", raw_version)
+              if not match:
+                  print(f"::error title=Unsupported Bevy version::Could not parse version '{raw_version}'.")
+                  sys.exit(1)
+
+              return tuple(int(part) if part is not None else 0 for part in match.groups())
+
+          request = urllib.request.Request(
+              crates_io_url,
+              headers={"User-Agent": "bevy-fps-counter release check (GitHub Actions)"},
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              crate_metadata = json.load(response).get("crate")
+
+          if not isinstance(crate_metadata, dict) or not crate_metadata.get("max_stable_version"):
+              print("::error title=Unexpected crates.io response::Could not determine Bevy's latest stable version from crates.io.")
+              sys.exit(1)
+
+          latest_stable_version = crate_metadata["max_stable_version"]
+          declared_release = parse_release_version(declared_version)
+          latest_stable_release = parse_release_version(latest_stable_version)
+
+          result = (
+              f"Declared Bevy dependency: {declared_version}\n"
+              f"Latest stable Bevy release: {latest_stable_version}\n"
+          )
+          print(result, end="")
+
+          summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+          if summary_path:
+              with open(summary_path, "a", encoding="utf-8") as summary_file:
+                  summary_file.write("## Bevy release check\n\n")
+                  summary_file.write(result.replace("\n", "  \n"))
+                  summary_file.write("\n")
+
+          if latest_stable_release > declared_release:
+              print(
+                  "::error title=New Bevy release available::"
+                  f"Bevy {latest_stable_version} is newer than the declared dependency {declared_version}."
+              )
+              sys.exit(1)
+
+          print("Declared Bevy dependency is up to date with crates.io.")
+          PY
