@@ -27,9 +27,6 @@ bevy-fps-counter = "*"
 
 ## Versions compatibility
 
-I don't use Bevy often, so I often miss new releases.  
-If a new version of Bevy is released and this crate is not updated, please open an issue or PR.
-
 | `bevy-fps-counter` | `bevy` |
 | ------------------ | ------ |
 | `0.9.0`            | `0.18` |
