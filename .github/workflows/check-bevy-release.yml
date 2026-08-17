@@ -84,7 +84,7 @@ jobs:
                   summary_file.write(result.replace("\n", "  \n"))
                   summary_file.write("\n")
 
-          if latest_stable_release > declared_release:
+          if latest_stable_release[:2] > declared_release[:2]:
               print(
                   "::error title=New Bevy release available::"
                   f"Bevy {latest_stable_version} is newer than the declared dependency {declared_version}."
